@@ -14,19 +14,14 @@ export default function ChatApp() {
     setInput("");
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
-      });
-      const data = await response.json();
-
-      if (data.reply) {
-        setMessages([
-          ...messages,
-          userMessage,
-          { role: "assistant", content: data.reply },
-        ]);
+      try {
+        const response = await fetch("http://127.0.0.1:5000/api/chat");
+        const data = await response.json();
+        console.log(data.message);
+        debugger;
+        setMessages([...messages, data.message]);
+      } catch (error) {
+        console.error("Error:", error);
       }
     } catch (error) {
       console.error("Error fetching response:", error);
