@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import DynamicForm from './components/DynamicForm';
+import { employeeOnboardingFormSchema } from './schemas/employer-form-schema';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <nav className="p-4 bg-blue-600 text-white flex gap-4">
+        <Link to="/" className="hover:underline">Home</Link>
+        <Link to="/onboarding" className="hover:underline">Employee Onboarding</Link>
+        <Link to="/feedback" className="hover:underline">Employer Feedback</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/onboarding" element={<DynamicForm schema={employeeOnboardingFormSchema} onSubmit={handleSubmit} />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+// Home Page Component
+const Home = () => (
+  <div className="p-6 text-center">
+    <h1 className="text-3xl font-bold">Welcome to the Employee Portal</h1>
+    <p className="mt-2 text-gray-600">Use the navigation bar to access forms.</p>
+  </div>
+);
+
+// Form Submission Handler
+const handleSubmit = (data) => {
+  console.log('Form Submitted:', data);
+};
+
+export default App;
