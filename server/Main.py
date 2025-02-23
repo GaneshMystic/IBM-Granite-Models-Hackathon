@@ -1,35 +1,30 @@
-from flask import Flask, jsonify
-from flask_cors import CORS
+from ollama import Client
+from pydantic import BaseModel
+import json
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-
-# Example data (replace with your actual data or logic)
-data = {"message": "Hello from the Python server!"}
+class Country(BaseModel):
+  question: str
 
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    """Returns data with CORS headers."""
-    return jsonify(data)  # Flask automatically adds appropriate CORS headers
+client = Client(
+  host='https://blue-pens-swim.loca.lt',
+)
+response = client.chat(
+  messages=[
+    {
+      'role': 'system',
+      'content': 'You are given a JSON object schema for collecting user details during the onboarding process of an employee in a company. Based on the provided schema, generate a natural language question that will help the user understand the details required and encourage them to provide the necessary information.\n\nOutput should be in the following JSON format: { "question": "" }',
+    },
+    {
+      'role': 'user',
+      'content': json.dumps({ "label": "PAN", "type": "string", "name": "PAN Card Number", "required": True }),
+    }
+  ],
+  model='granite3.1-dense',
+  format=Country.model_json_schema(),
+)
+
+country = Country.model_validate_json(response["message"]["content"])
+print(country.question)
 
 
-@app.route('/api/post_data', methods=['POST'])  # Example POST route
-def post_data():
-    """Handles POST requests with CORS."""
-    try:
-        # Get data from the request (e.g., JSON payload)
-        request_data = request.get_json()  # Assuming JSON data
-        # Process request_data (e.g., store in database)
-
-        response = {"message": "Data received successfully!",
-                    "data": request_data}
-        return jsonify(response), 201  # 201 Created status code
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400  # Bad Request
-
-
-if __name__ == '__main__':
-    from flask import request  # Import request within the if __name__ == '__main__' block
-    app.run(port=5000)  # Run the server on port 5000
