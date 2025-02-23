@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const DynamicForm = ({ schema, onSubmit }) => {
   const [formData, setFormData] = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, type, value, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "file" ? files[0] : value, // Store file object for file input
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -14,12 +17,15 @@ const DynamicForm = ({ schema, onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-2xl shadow-lg">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 p-4 bg-white rounded-2xl shadow-lg"
+    >
       <h2 className="text-xl font-bold">{schema.title}</h2>
       {schema.fields.map((field) => (
         <div key={field.name} className="flex flex-col">
           <label className="mb-1">{field.label}</label>
-          {field.type === 'select' ? (
+          {field.type === "select" ? (
             <select
               name={field.name}
               onChange={handleChange}
@@ -33,7 +39,7 @@ const DynamicForm = ({ schema, onSubmit }) => {
                 </option>
               ))}
             </select>
-          ) : field.type === 'textarea' ? (
+          ) : field.type === "textarea" ? (
             <textarea
               name={field.name}
               onChange={handleChange}
@@ -48,6 +54,7 @@ const DynamicForm = ({ schema, onSubmit }) => {
               onChange={handleChange}
               className="p-2 rounded-lg border"
               required={field.required}
+              accept={field.type === "file" ? field.accept || "*" : undefined} // Support file type restrictions
             />
           )}
         </div>
